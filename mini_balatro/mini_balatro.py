@@ -27,7 +27,7 @@ class ScoringHand:
     straight_flush = Score(100, 8, "Straight Flush")
     five_of_a_kind = Score(120, 12, "Five of a Kind")
     flush_house = Score(140, 14, "Flush House")
-    flush_five = Score(160, 16, "Flush Five of a Kind")
+    flush_five = Score(160, 16, "Flush Five")
 
 
 class Game:
@@ -182,7 +182,7 @@ class Game:
     def _is_flush(self, cards: list[deck.Card]) -> bool:
         """Check if a played hand is a flush."""
         suits = collections.Counter([card.suit for card in cards])
-        return len(suits) == 1
+        return len(suits) == 1 and len(cards) == 5
 
     def _is_straight(self, cards: list[deck.Card]) -> bool:
         """Check if a played hand is a straight."""
@@ -212,7 +212,7 @@ class Game:
         straight = self._is_straight(cards)
 
         # Check for pairs, working in descending priority.
-        rank_counts = sorted(ranks.values())
+        rank_counts = sorted(ranks.values(), reverse=True)
         if rank_counts[0] == 5:
             if flush:
                 return ScoringHand.flush_five
@@ -220,7 +220,7 @@ class Game:
                 return ScoringHand.five_of_a_kind
         elif rank_counts[0] == 4:
             return ScoringHand.four_of_a_kind
-        elif rank_counts[0] == 3 and rank_counts[1] == 2:
+        elif len(cards) == 5 and rank_counts[0] == 3 and rank_counts[1] == 2:
             if flush:
                 return ScoringHand.flush_house
             else:
@@ -232,11 +232,11 @@ class Game:
                 return ScoringHand.flush
         elif straight:
             return ScoringHand.straight
-        elif rank_counts[0] == 3 and rank_counts[1] < 2:
+        elif rank_counts[0] == 3:
             return ScoringHand.three_of_a_kind
-        elif rank_counts[0] == 2 and rank_counts[1] == 2:
+        elif len(cards) >= 4 and rank_counts[0] == 2 and rank_counts[1] == 2:
             return ScoringHand.two_pair
-        elif rank_counts[0] == 2 and rank_counts[1] < 2:
+        elif rank_counts[0] == 2:
             return ScoringHand.pair
         else:
             return ScoringHand.high_card

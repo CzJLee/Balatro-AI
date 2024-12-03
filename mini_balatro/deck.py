@@ -76,10 +76,10 @@ SORT_SUIT = {
 class Card:
     """Standard playing card."""
 
-    suit: Literal["heart", "diamond", "club", "spade"]
     rank: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-    chip_value: int
-    mult_value: int
+    suit: Literal["heart", "diamond", "club", "spade"]
+    chip_value: int = 0
+    mult_value: int = 0
 
     def __repr__(self):
         if self.suit == "spade":
@@ -145,7 +145,7 @@ class Deck(Stack):
     def __init__(self, cards: list[Card] | None = None, seed: int | None = None):
         super().__init__(cards)
         self.cards = [
-            Card(suit, rank, CHIP_VALUE[rank], 0) for suit in SUIT for rank in RANK
+            Card(rank, suit, CHIP_VALUE[rank], 0) for suit in SUIT for rank in RANK
         ]
         random.seed(seed)
         self.shuffle()
