@@ -23,6 +23,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(1, "heart"),
                 ],
                 expected="Flush Five",
+                num_cards=5,
             ),
             parameterized.param(
                 "Flush House",
@@ -34,6 +35,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "diamond"),
                 ],
                 expected="Flush House",
+                num_cards=5,
             ),
             parameterized.param(
                 "Five of a Kind",
@@ -45,6 +47,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(11, "spade"),
                 ],
                 expected="Five of a Kind",
+                num_cards=5,
             ),
             parameterized.param(
                 "Straight Flush",
@@ -56,6 +59,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "club"),
                 ],
                 expected="Straight Flush",
+                num_cards=5,
             ),
             parameterized.param(
                 "Straight Flush with A2345",
@@ -67,6 +71,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(5, "heart"),
                 ],
                 expected="Straight Flush",
+                num_cards=5,
             ),
             parameterized.param(
                 "Four of a Kind",
@@ -78,6 +83,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(5, "spade"),
                 ],
                 expected="Four of a Kind",
+                num_cards=4,
             ),
             parameterized.param(
                 "Four of a Kind 4 cards",
@@ -88,6 +94,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(12, "diamond"),
                 ],
                 expected="Four of a Kind",
+                num_cards=4,
             ),
             parameterized.param(
                 "Full House",
@@ -99,6 +106,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(2, "spade"),
                 ],
                 expected="Full House",
+                num_cards=5,
             ),
             parameterized.param(
                 "Flush",
@@ -110,6 +118,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "club"),
                 ],
                 expected="Flush",
+                num_cards=5,
             ),
             parameterized.param(
                 "Flush with pair",
@@ -121,6 +130,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "club"),
                 ],
                 expected="Flush",
+                num_cards=5,
             ),
             parameterized.param(
                 "Flush with three of a kind",
@@ -132,6 +142,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "club"),
                 ],
                 expected="Flush",
+                num_cards=5,
             ),
             parameterized.param(
                 "Straight",
@@ -143,6 +154,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(8, "club"),
                 ],
                 expected="Straight",
+                num_cards=5,
             ),
             parameterized.param(
                 "Straight with A2345",
@@ -154,6 +166,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(1, "spade"),
                 ],
                 expected="Straight",
+                num_cards=5,
             ),
             parameterized.param(
                 "Straight with AKQJ10",
@@ -165,6 +178,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(1, "spade"),
                 ],
                 expected="Straight",
+                num_cards=5,
             ),
             parameterized.param(
                 "Three of a Kind",
@@ -176,6 +190,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(6, "spade"),
                 ],
                 expected="Three of a Kind",
+                num_cards=3,
             ),
             parameterized.param(
                 "Three of a Kind 4 cards",
@@ -186,6 +201,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(9, "club"),
                 ],
                 expected="Three of a Kind",
+                num_cards=3,
             ),
             parameterized.param(
                 "Three of a Kind 3 cards",
@@ -195,6 +211,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(9, "club"),
                 ],
                 expected="Three of a Kind",
+                num_cards=3,
             ),
             parameterized.param(
                 "Two Pair",
@@ -206,6 +223,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(4, "spade"),
                 ],
                 expected="Two Pair",
+                num_cards=4,
             ),
             parameterized.param(
                 "Two Pair 4 cards",
@@ -216,6 +234,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(4, "heart"),
                 ],
                 expected="Two Pair",
+                num_cards=4,
             ),
             parameterized.param(
                 "Pair",
@@ -227,6 +246,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(11, "spade"),
                 ],
                 expected="Pair",
+                num_cards=2,
             ),
             parameterized.param(
                 "Pair 4 cards",
@@ -237,6 +257,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(12, "club"),
                 ],
                 expected="Pair",
+                num_cards=2,
             ),
             parameterized.param(
                 "Pair 3 cards",
@@ -246,6 +267,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(8, "spade"),
                 ],
                 expected="Pair",
+                num_cards=2,
             ),
             parameterized.param(
                 "Pair 2 cards",
@@ -254,6 +276,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(8, "spade"),
                 ],
                 expected="Pair",
+                num_cards=2,
             ),
             parameterized.param(
                 "High Card",
@@ -265,6 +288,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(5, "spade"),
                 ],
                 expected="High Card",
+                num_cards=1,
             ),
             parameterized.param(
                 "High Card 4 cards",
@@ -275,6 +299,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(2, "heart"),
                 ],
                 expected="High Card",
+                num_cards=1,
             ),
             parameterized.param(
                 "High Card 3 cards",
@@ -284,6 +309,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(2, "club"),
                 ],
                 expected="High Card",
+                num_cards=1,
             ),
             parameterized.param(
                 "High Card 2 cards",
@@ -292,6 +318,7 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "diamond"),
                 ],
                 expected="High Card",
+                num_cards=1,
             ),
             parameterized.param(
                 "High Card 1 card",
@@ -299,10 +326,12 @@ class TestGame(unittest.TestCase):
                     deck.Card(10, "diamond"),
                 ],
                 expected="High Card",
+                num_cards=1,
             ),
         ]
     )
-    def test_get_scoring_hand(self, _, cards: list[deck.Card], expected: str):
+    def test_get_scoring_hand(self, _, cards: list[deck.Card], expected: str, num_cards: int):
         """Test that certain card combos return the correct scoring hand."""
-        score = self.game.get_scoring_hand(cards)
+        score, cards_that_scored = self.game.get_scoring_hand(cards)
         self.assertEqual(score.scoring_hand, expected)
+        self.assertEqual(len(cards_that_scored), num_cards)

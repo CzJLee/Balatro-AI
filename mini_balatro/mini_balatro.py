@@ -156,8 +156,8 @@ class Game:
         self.hand = deck.Hand(cards_to_keep)
 
         # Calculate score
-        score = self.get_scoring_hand(cards_to_play)
-        for card in cards_to_play:
+        score, cards_that_scored = self.get_scoring_hand(cards_to_play)
+        for card in cards_that_scored:
             score.chip_value += card.chip_value
             score.mult_value += card.mult_value
 
@@ -166,8 +166,9 @@ class Game:
         # Print score details.
         print()
         print(f"{score.scoring_hand}: {cards_to_play}")
+        print(f"Cards scored: {cards_that_scored}")
         print(f"Score: {score.chip_value} x {score.mult_value} = {score.total()}")
-        print(f"Total Score: {self.round_score}")
+        print(f"Total Score: {self.round_score} / {self.target_score}")
 
         round_complete = self.check_target_score()
         if round_complete:
@@ -197,13 +198,21 @@ class Game:
             sorted_ranks.append(14)
         return sorted_ranks[-1] - sorted_ranks[0] == 4
 
-    def get_scoring_hand(self, cards: list[deck.Card]) -> Score:
-        """Get the type of scoring hand for the played hand."""
+    def get_scoring_hand(self, cards: list[deck.Card]) -> tuple[Score, list[deck.Card]]:
+        """Get the type of scoring hand for the played hand.
+
+        Args:
+            cards: The cards played in the hand.
+
+        Returns:
+            The type of scoring hand and the cards that scored in the hand.
+        """
         if not cards:
             raise ValueError("Cannot calculate score for empty hand.")
         elif len(cards) > 5:
             raise ValueError("Cannot play more than 5 cards.")
 
+        cards.sort()
         ranks = collections.Counter([card.rank for card in cards])
 
         # Check for flush
@@ -215,28 +224,47 @@ class Game:
         rank_counts = sorted(ranks.values(), reverse=True)
         if rank_counts[0] == 5:
             if flush:
-                return ScoringHand.flush_five
+                return ScoringHand.flush_five, cards
             else:
-                return ScoringHand.five_of_a_kind
+                return ScoringHand.five_of_a_kind, cards
         elif rank_counts[0] == 4:
-            return ScoringHand.four_of_a_kind
+            return ScoringHand.four_of_a_kind, self._largest_set(cards)
         elif len(cards) == 5 and rank_counts[0] == 3 and rank_counts[1] == 2:
             if flush:
-                return ScoringHand.flush_house
+                return ScoringHand.flush_house, cards
             else:
-                return ScoringHand.full_house
+                return ScoringHand.full_house, cards
         elif flush:
             if straight:
-                return ScoringHand.straight_flush
+                return ScoringHand.straight_flush, cards
             else:
-                return ScoringHand.flush
+                return ScoringHand.flush, cards
         elif straight:
-            return ScoringHand.straight
+            return ScoringHand.straight, cards
         elif rank_counts[0] == 3:
-            return ScoringHand.three_of_a_kind
+            return ScoringHand.three_of_a_kind, self._largest_set(cards)
         elif len(cards) >= 4 and rank_counts[0] == 2 and rank_counts[1] == 2:
-            return ScoringHand.two_pair
+            return ScoringHand.two_pair, self._two_pair(cards)
         elif rank_counts[0] == 2:
-            return ScoringHand.pair
+            return ScoringHand.pair, self._largest_set(cards)
         else:
-            return ScoringHand.high_card
+            return ScoringHand.high_card, [cards[0]]
+
+    def _largest_set(self, cards: list[deck.Card]) -> list[deck.Card]:
+        """Return the cards that form the largest pair.
+
+        Either a pair, three of a kind, or four of a kind.
+        """
+        cards.sort()
+        ranks = collections.Counter([card.rank for card in cards])
+        most_common = ranks.most_common(1)
+        most_common_rank = most_common[0][0]
+        return [card for card in cards if card.rank == most_common_rank]
+
+    def _two_pair(self, cards: list[deck.Card]) -> list[deck.Card]:
+        """Return the cards that form the two pair."""
+        cards.sort()
+        ranks = collections.Counter([card.rank for card in cards])
+        most_common = ranks.most_common(2)
+        selected_ranks = [most_common[0][0], most_common[1][0]]
+        return [card for card in cards if card.rank in selected_ranks]

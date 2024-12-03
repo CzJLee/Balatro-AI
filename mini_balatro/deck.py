@@ -94,6 +94,9 @@ class Card:
             color = colorama.Fore.RESET
         return f"{color}{RANK[self.rank]}{SUIT[self.suit]}{colorama.Style.RESET_ALL}"
 
+    def __lt__(self, other) -> bool:
+        return SORT_RANK[self.rank] < SORT_RANK[other.rank]
+
 
 class Stack:
     """Stack of cards."""
