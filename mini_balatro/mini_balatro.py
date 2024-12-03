@@ -1,9 +1,14 @@
 import collections
+import copy
 import dataclasses
+import time
 from collections.abc import Collection
 
+import colorama
 import deck
 
+# Time to sleep in between print statements
+SLEEP_TIME = 0.05
 
 @dataclasses.dataclass
 class Score:
@@ -44,14 +49,24 @@ class Game:
         self.money: int = 4
 
         self.seed = seed
+        self.new_round(seed=self.seed)
+
+    def print_status(self):
+        """Print the current game status."""
+        print()
+        time.sleep(SLEEP_TIME)
+        print(f"Hands: {self.hands}, Discards: {self.discards}")
+        time.sleep(SLEEP_TIME)
+        print(f"Round Score: {self.round_score} / {self.target_score}")
 
     def deal_hand(self):
         """Draws cards from the deck up to the hand limit."""
         while len(self.hand) < self.hand_limit:
             self.hand.append(self.deck.draw())
 
-    def new_round(self):
+    def new_round(self, seed: int | None = None):
         """Sets the game state to a new round."""
+        self.seed = seed
         self.deck = deck.Deck(seed=self.seed)
         self.hand = deck.Hand()
         self.round_score = 0
@@ -64,13 +79,11 @@ class Game:
     def check_target_score(self) -> bool:
         """After playing a hand, check to see if the target score has been reached."""
         if self.round_score >= self.target_score:
-            print("Blind Complete!")
-            self.new_round()
+            print(f"{colorama.Back.GREEN}{colorama.Fore.WHITE}Blind Complete!")
             self.round += 1
             return True
         elif self.hands <= 0:
-            print("Game Over!")
-            self.new_round()
+            print(f"{colorama.Back.RED}{colorama.Fore.WHITE}Game Over!")
             self.round = 0
             return True
         return False
@@ -88,7 +101,9 @@ class Game:
                 top_string.append("    ")
                 bottom_string.append(f"{card}  ")
         print()
+        time.sleep(SLEEP_TIME)
         print("".join(top_string))
+        time.sleep(SLEEP_TIME)
         print("".join(bottom_string))
 
     def redraw_hand(self) -> list[deck.Card]:
@@ -122,8 +137,12 @@ class Game:
     def discard_cards(
         self, card_indices: Collection[int], confirm: bool = True
     ) -> None:
+        if len(card_indices) > 5:
+            raise ValueError("Cannot discard more than 5 cards.")
         if self.discards <= 0:
             raise ValueError("No discards remaining.")
+        if len(set(card_indices)) != len(card_indices):
+            raise ValueError("Duplicate card indices.")
         self.discards -= 1
 
         cards_to_discard, cards_to_keep = self.partition(card_indices)
@@ -140,11 +159,17 @@ class Game:
             self._confirm_text(new_cards, "NEW", "OLD")
 
         self.hand = deck.Hand(cards_to_keep)
+        self.print_status()
 
     def play_hand(self, card_indices: Collection[int], confirm: bool = True) -> None:
         """Plays a hand of cards from the hand, return the score."""
+        if len(card_indices) > 5:
+            raise ValueError("Cannot play more than 5 cards.")
         if self.hands <= 0:
             raise ValueError("No hands remaining.")
+        if len(set(card_indices)) != len(card_indices):
+            raise ValueError("Duplicate card indices.")
+
         self.hands -= 1
 
         cards_to_play, cards_to_keep = self.partition(card_indices)
@@ -157,6 +182,7 @@ class Game:
 
         # Calculate score
         score, cards_that_scored = self.get_scoring_hand(cards_to_play)
+        score = copy.copy(score)
         for card in cards_that_scored:
             score.chip_value += card.chip_value
             score.mult_value += card.mult_value
@@ -165,9 +191,13 @@ class Game:
 
         # Print score details.
         print()
+        time.sleep(SLEEP_TIME)
         print(f"{score.scoring_hand}: {cards_to_play}")
+        time.sleep(SLEEP_TIME)
         print(f"Cards scored: {cards_that_scored}")
+        time.sleep(SLEEP_TIME)
         print(f"Score: {score.chip_value} x {score.mult_value} = {score.total()}")
+        time.sleep(SLEEP_TIME)
         print(f"Total Score: {self.round_score} / {self.target_score}")
 
         round_complete = self.check_target_score()
@@ -179,6 +209,7 @@ class Game:
 
         if confirm:
             self._confirm_text(new_cards, "NEW", "OLD")
+        self.print_status()
 
     def _is_flush(self, cards: list[deck.Card]) -> bool:
         """Check if a played hand is a flush."""
