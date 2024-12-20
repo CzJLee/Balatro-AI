@@ -10,6 +10,7 @@ import deck
 # Time to sleep in between print statements
 SLEEP_TIME = 0.05
 
+
 @dataclasses.dataclass
 class Score:
     chip_value: int
@@ -64,7 +65,7 @@ class Game:
         while len(self.hand) < self.hand_limit:
             self.hand.append(self.deck.draw())
 
-    def new_round(self, seed: int | None = None):
+    def new_round(self, seed: int | None = None, deal_hand: bool = True):
         """Sets the game state to a new round."""
         self.seed = seed
         self.deck = deck.Deck(seed=self.seed)
@@ -73,8 +74,9 @@ class Game:
         self.target_score = 600
         self.hands = 4
         self.discards = 3
-        self.deal_hand()
-        self.hand.sort()
+        if deal_hand:
+            self.deal_hand()
+            self.hand.sort()
 
     def check_target_score(self) -> bool:
         """After playing a hand, check to see if the target score has been reached."""
@@ -181,22 +183,17 @@ class Game:
         self.hand = deck.Hand(cards_to_keep)
 
         # Calculate score
-        score, cards_that_scored = self.get_scoring_hand(cards_to_play)
-        score = copy.copy(score)
-        for card in cards_that_scored:
-            score.chip_value += card.chip_value
-            score.mult_value += card.mult_value
-
-        self.round_score += score.total()
+        hand_score, scoring_hand, cards_that_scored = self.score_hand(cards_to_play)
+        self.round_score += hand_score
 
         # Print score details.
         print()
         time.sleep(SLEEP_TIME)
-        print(f"{score.scoring_hand}: {cards_to_play}")
+        print(f"{scoring_hand.scoring_hand}: {cards_to_play}")
         time.sleep(SLEEP_TIME)
         print(f"Cards scored: {cards_that_scored}")
         time.sleep(SLEEP_TIME)
-        print(f"Score: {score.chip_value} x {score.mult_value} = {score.total()}")
+        print(f"Score: {scoring_hand.chip_value} x {scoring_hand.mult_value} = {scoring_hand.total()}")
         time.sleep(SLEEP_TIME)
         print(f"Total Score: {self.round_score} / {self.target_score}")
 
@@ -228,6 +225,24 @@ class Game:
             sorted_ranks.remove(1)
             sorted_ranks.append(14)
         return sorted_ranks[-1] - sorted_ranks[0] == 4
+
+    def score_hand(self, cards: list[deck.Card]) -> tuple[int, Score, list[deck.Card]]:
+        """Computes the score for a set of played cards.
+
+        Returns:
+            (points, Score, cards_that_scored)
+        """
+        if len(cards) > 5:
+            raise ValueError("Cannot score more than 5 cards.")
+
+        # Calculate score
+        score, cards_that_scored = self.get_scoring_hand(cards)
+        score = copy.copy(score)
+        for card in cards_that_scored:
+            score.chip_value += card.chip_value
+            score.mult_value += card.mult_value
+
+        return score.total(), score, cards_that_scored
 
     def get_scoring_hand(self, cards: list[deck.Card]) -> tuple[Score, list[deck.Card]]:
         """Get the type of scoring hand for the played hand.
